@@ -1,0 +1,51 @@
+x-erpnext-backend-image:
+  &erpnext_backend_image
+  image: erpnext_oob
+  build:
+    context: "./images/erpnext_oob"
+    args:
+      - FRAPPE_VERSION=${FRAPPE_VERSION}
+      - ERPNEXT_VERSION=${ERPNEXT_VERSION}
+      - PYTHON_VERSION=3.9
+  environment:
+    DB_HOST: ${DB_HOST}
+    DB_PORT: "3306"
+    REDIS_CACHE: redis:6379/0
+    REDIS_QUEUE: redis:6379/1
+    REDIS_SOCKETIO: redis:6379/2
+    SOCKETIO_PORT: "9000"
+    SITE_NAME: ${SITE_NAME}
+    MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+x-erpnext-frontend-image:
+  &erpnext_frontend_image
+  image: nginx_oob
+  build:
+    context: "./images/nginx_oob"
+    args:
+      - FRAPPE_VERSION=${FRAPPE_VERSION}
+      - ERPNEXT_VERSION=${ERPNEXT_VERSION}
+      - PYTHON_VERSION=3.9
+
+services:
+  configurator:
+    <<: *erpnext_backend_image
+
+  backend:
+    <<: *erpnext_backend_image
+
+  frontend:
+    <<: *erpnext_frontend_image
+
+  queue-short:
+    <<: *erpnext_backend_image
+
+  queue-default:
+    <<: *erpnext_backend_image
+
+  queue-long:
+    <<: *erpnext_backend_image
+
+  scheduler:
+    <<: *erpnext_backend_image

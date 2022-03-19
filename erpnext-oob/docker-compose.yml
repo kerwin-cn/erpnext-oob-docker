@@ -1,0 +1,206 @@
+services:
+  backend:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+    - assets:/home/frappe/frappe-bench/sites/assets:ro
+  configurator:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    command: configure.py
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: 3306
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+  db:
+    command:
+    - --character-set-server=utf8mb4
+    - --collation-server=utf8mb4_unicode_ci
+    - --skip-character-set-client-handshake
+    - --skip-innodb-read-only-compressed
+    environment:
+      MYSQL_ROOT_PASSWORD: '123'
+    healthcheck:
+      interval: 1s
+      retries: 15
+      test: mysqladmin ping -h localhost --password=123
+    image: mariadb:10.6
+    volumes:
+    - db-data:/var/lib/mysql:rw
+  frontend:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/nginx_oob
+    depends_on:
+      backend:
+        condition: service_started
+      websocket:
+        condition: service_started
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: erpnext.test
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+    image: nginx_oob
+    ports:
+    - published: 8080
+      target: 8080
+    volumes:
+    - assets:/usr/share/nginx/html/assets:rw
+    - sites:/usr/share/nginx/html/sites:rw
+  queue-default:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    command: bench worker --queue default
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+  queue-long:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    command: bench worker --queue long
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+  queue-short:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    command: bench worker --queue short
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+  redis:
+    image: redis:6.2-alpine
+    volumes:
+    - redis-data:/data:rw
+  scheduler:
+    build:
+      args:
+        ERPNEXT_VERSION: v13.22.1
+        FRAPPE_VERSION: v13.22.1
+        PYTHON_VERSION: '3.9'
+      context: /Users/kerwin/apps/frappe_docker/images/erpnext_oob
+    command: bench schedule
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    environment:
+      ADMIN_PASSWORD: '123456'
+      DB_HOST: db
+      DB_PORT: '3306'
+      MYSQL_ROOT_PASSWORD: '123'
+      REDIS_CACHE: redis:6379/0
+      REDIS_QUEUE: redis:6379/1
+      REDIS_SOCKETIO: redis:6379/2
+      SITE_NAME: erpnext.test
+      SOCKETIO_PORT: '9000'
+    image: erpnext_oob
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+  websocket:
+    depends_on:
+      configurator:
+        condition: service_completed_successfully
+    image: frappe/frappe-socketio:v13.22.1
+    volumes:
+    - sites:/home/frappe/frappe-bench/sites:rw
+version: '3.9'
+volumes:
+  assets: {}
+  db-data: {}
+  redis-data: {}
+  sites: {}
+
