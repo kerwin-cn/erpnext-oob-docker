@@ -1,5 +1,14 @@
 FROM node:14-bullseye-slim as base
 
+ARG CHANGE_SOURCE=false
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    mv /etc/apt/sources.list /etc/apt/sources.list.bak; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list; \
+    fi;
+
 RUN apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y \
     git \
@@ -17,7 +26,10 @@ RUN git clone --depth 1 -b ${FRAPPE_VERSION} https://github.com/frappe/frappe ap
 
 
 FROM base as frappe_prod_node_modules
-
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    yarn config set registry https://registry.npm.taobao.org; \
+    yarn config set sass_binary_site "https://cdn.npm.taobao.org/dist/node-sass/"; \
+    fi;
 # Install production node modules
 RUN yarn --cwd apps/frappe --prod
 

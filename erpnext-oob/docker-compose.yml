@@ -2,6 +2,7 @@ services:
   backend:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -10,10 +11,10 @@ services:
       configurator:
         condition: service_completed_successfully
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: '3306'
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
@@ -26,6 +27,7 @@ services:
   configurator:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -37,10 +39,10 @@ services:
       redis:
         condition: service_started
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: 3306
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
@@ -56,17 +58,18 @@ services:
     - --skip-character-set-client-handshake
     - --skip-innodb-read-only-compressed
     environment:
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
     healthcheck:
       interval: 1s
       retries: 15
-      test: mysqladmin ping -h localhost --password=123
+      test: mysqladmin ping -h localhost --password=root
     image: mariadb:10.6
     volumes:
     - db-data:/var/lib/mysql:rw
   frontend:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -93,6 +96,7 @@ services:
   queue-default:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -102,10 +106,10 @@ services:
       configurator:
         condition: service_completed_successfully
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: '3306'
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
@@ -117,6 +121,7 @@ services:
   queue-long:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -126,10 +131,10 @@ services:
       configurator:
         condition: service_completed_successfully
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: '3306'
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
@@ -141,6 +146,7 @@ services:
   queue-short:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -150,10 +156,10 @@ services:
       configurator:
         condition: service_completed_successfully
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: '3306'
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2
@@ -169,6 +175,7 @@ services:
   scheduler:
     build:
       args:
+        CHANGE_SOURCE: "true"
         ERPNEXT_VERSION: v13.22.1
         FRAPPE_VERSION: v13.22.1
         PYTHON_VERSION: '3.9'
@@ -178,10 +185,10 @@ services:
       configurator:
         condition: service_completed_successfully
     environment:
-      ADMIN_PASSWORD: '123456'
+      ADMIN_PASSWORD: admin
       DB_HOST: db
       DB_PORT: '3306'
-      MYSQL_ROOT_PASSWORD: '123'
+      MYSQL_ROOT_PASSWORD: root
       REDIS_CACHE: redis:6379/0
       REDIS_QUEUE: redis:6379/1
       REDIS_SOCKETIO: redis:6379/2

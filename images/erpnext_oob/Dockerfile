@@ -2,6 +2,16 @@
 
 ARG PYTHON_VERSION
 FROM python:${PYTHON_VERSION}-slim-bullseye as base
+#更管国内源
+
+ARG CHANGE_SOURCE=false
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    mv /etc/apt/sources.list /etc/apt/sources.list.bak; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye main contrib non-free" > /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bullseye-backports main contrib non-free" >> /etc/apt/sources.list; \
+    echo "deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list; \
+    fi;
 
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
@@ -11,6 +21,14 @@ RUN apt-get update \
 
 RUN useradd -ms /bin/bash frappe
 USER frappe
+RUN if [ ${CHANGE_SOURCE} = true ]; then \
+    mkdir -p ~/.pip; \
+    echo "[global]\n" > ~/.pip/pip.conf;\
+    echo "timeout = 6000" >> ~/.pip/pip.conf;\
+    echo "index-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> ~/.pip/pip.conf;\
+    echo "trusted-host = pypi.tuna.tsinghua.edu.cn" >> ~/.pip/pip.conf; \
+    fi;
+
 RUN mkdir -p /home/frappe/frappe-bench/apps /home/frappe/frappe-bench/logs /home/frappe/frappe-bench/sites
 WORKDIR /home/frappe/frappe-bench
 

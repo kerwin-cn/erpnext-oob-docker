@@ -4,6 +4,7 @@ x-erpnext-backend-image:
   build:
     context: "./images/erpnext_oob"
     args:
+      - CHANGE_SOURCE=${CHANGE_SOURCE}
       - FRAPPE_VERSION=${FRAPPE_VERSION}
       - ERPNEXT_VERSION=${ERPNEXT_VERSION}
       - PYTHON_VERSION=3.9
@@ -24,6 +25,7 @@ x-erpnext-frontend-image:
   build:
     context: "./images/nginx_oob"
     args:
+      - CHANGE_SOURCE=${CHANGE_SOURCE}
       - FRAPPE_VERSION=${FRAPPE_VERSION}
       - ERPNEXT_VERSION=${ERPNEXT_VERSION}
       - PYTHON_VERSION=3.9

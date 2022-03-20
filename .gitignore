@@ -25,4 +25,4 @@ __pycache__
 venv
 
 # 生成的
-./erpnext-oob
+erpnext-oob/*
