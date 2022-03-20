@@ -51,6 +51,8 @@ def main() -> int:
     )
     time.sleep(10)
     os.system("bench new-site " + env("SITE_NAME") + " --mariadb-root-password " + env("MYSQL_ROOT_PASSWORD") + " --admin-password " + env("ADMIN_PASSWORD") + " --install-app erpnext --install-app erpnext_chinese --install-app erpnext_oob")
+    os.system("bench --site " + env("SITE_NAME") + " migrate")
+    os.system("bench --site " + env("SITE_NAME") + " clear-cache")
     return 0
 
 
